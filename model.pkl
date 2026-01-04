@@ -1,0 +1,4 @@
+import joblib
+
+joblib.dump(best_model, "model.pkl")
+joblib.dump(X.columns.tolist(), "feature_names.pkl")

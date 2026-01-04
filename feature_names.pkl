@@ -1,0 +1,12 @@
+feature_names.pkl stores the exact order of input features used while training the machine learning model.
+
+Machine learning models such as Random Forest and Logistic Regression are sensitive to the order of input variables.
+If user inputs are passed in a different order during deployment, the model may produce incorrect or misleading predictions.
+
+By saving the feature names during training and loading them during deployment, we ensure:
+1. Consistent feature ordering between training and prediction
+2. Prevention of feature mismatch errors
+3. Reliable and accurate predictions
+4. Seamless integration of the model into the Streamlit application
+
+This file acts as a bridge between model training and real-time user input, ensuring model integrity during deployment.
