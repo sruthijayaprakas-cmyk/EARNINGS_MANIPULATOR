@@ -1,78 +1,56 @@
+
 import streamlit as st
 import numpy as np
-from sklearn.externals import joblib
-import os
+import pickle
 
-# -----------------------------
-# Page configuration
-# -----------------------------
-st.set_page_config(
-    page_title="Earnings Manipulator Detection",
-    layout="centered"
-)
+st.set_page_config(page_title="Earnings Manipulator Detection")
 
 st.title("📊 Earnings Manipulator Detection App")
-st.write(
-    "This application predicts whether a firm is likely engaging in earnings manipulation "
-    "based on financial inputs."
-)
+st.write("Enter financial values to predict earnings manipulation risk.")
 
-# -----------------------------
-# Load model and feature names
-# -----------------------------
+# ----------------------------
+# Load model and features
+# ----------------------------
 @st.cache_resource
 def load_artifacts():
-    model = joblib.load("model.pkl")
-    feature_names = joblib.load("feature_names.pkl")
-    return model, feature_names
-
+    with open("model.pkl", "rb") as f:
+        model = pickle.load(f)
+    with open("feature_names.pkl", "rb") as f:
+        features = pickle.load(f)
+    return model, features
 
 try:
-    model, feature_names = load_artifacts()
-except Exception as e:
-    st.error("Model files not found or failed to load.")
+    model, features = load_artifacts()
+except Exception:
+    st.error("Model files not found or could not be loaded.")
     st.stop()
 
-# -----------------------------
-# User input section
-# -----------------------------
-st.subheader("🔢 Enter Financial Inputs")
+# ----------------------------
+# User Inputs
+# ----------------------------
+st.subheader("🔢 Financial Inputs")
 
-user_values = []
-
-for feature in feature_names:
+inputs = []
+for feature in features:
     value = st.number_input(
         label=str(feature),
         value=0.0,
         format="%.4f"
     )
-    user_values.append(value)
+    inputs.append(value)
 
-# -----------------------------
+# ----------------------------
 # Prediction
-# -----------------------------
+# ----------------------------
 if st.button("Predict"):
-    input_array = np.array(user_values).reshape(1, -1)
-
-    prediction = model.predict(input_array)[0]
-    probability = model.predict_proba(input_array)[0][1]
+    X = np.array(inputs).reshape(1, -1)
+    prediction = model.predict(X)[0]
+    probability = model.predict_proba(X)[0][1]
 
     st.markdown("---")
     st.subheader("📌 Prediction Result")
 
     if prediction == 1:
-        st.error(
-            f"⚠️ **Likely Earnings Manipulator**\n\n"
-            f"Confidence Score: **{probability:.2%}**"
-        )
+        st.error(f"⚠️ Likely Earnings Manipulator (Confidence: {probability:.2%})")
     else:
-        st.success(
-            f"✅ **Not an Earnings Manipulator**\n\n"
-            f"Confidence Score: **{(1 - probability):.2%}**"
-        )
-
-# -----------------------------
-# Footer
-# -----------------------------
-st.markdown("---")
-st.caption("Model deployed using Streamlit and GitHub")
+        st.success(f"✅ Not an Earnings Manipulator (Confidence: {(1 - probability):.2%})")
