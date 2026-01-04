@@ -1,2 +1,2 @@
 with open("feature_names.pkl", "wb") as f:
-    pickle.dump(X.columns.tolist(), f)
+    pickle.dump(X.columns.tolist(), f, protocol=pickle.HIGHEST_PROTOCOL)
